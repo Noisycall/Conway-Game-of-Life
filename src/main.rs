@@ -13,7 +13,19 @@ fn main() {
     let mut board = Board{board:Vec::new(),dimensions:Location(5,5)};
     board.init_board();
     board.board[0][0].alive = true;
+    board.board[0][1].alive = true;
     draw_board(&board);
+    let iter = 5;
+    for i in 0..=iter{
+        board.board.iter().for_each(move|row|{row.iter().for_each(move|col:&mut Cell|{
+            col.alive = next_cell_state(&board,&col);
+        })});
+        draw_board(&board);
+        println!()
+    }
+    // let neighbours = get_bounds_checked_neighbours(&board,&board.board[0][0]);
+    // neighbours.iter().for_each(|loc|{println!("x:{},y:{}",loc.0,loc.1)});
+    // println!("{}",active_neighbour_count(&board,&neighbours));
     // get_bounds_checked_neighbours(&board,&cell).iter().for_each(|x| println!("{}",x));
 }
 
@@ -21,8 +33,32 @@ fn main() {
 
 
 fn next_cell_state(board:&Board,cell:&Cell)->bool{
+    let neighbours = get_bounds_checked_neighbours(&board,&cell);
+    let active_neighbours = active_neighbour_count(&board,&neighbours);
+    if cell.alive{
+        if active_neighbours<2{
+            return false;
+        }
+        if active_neighbours>3{
+            return  false;
+        }
+    }
+    else {
+        if active_neighbours==3{
+            return true;
+        }
+    }
+    return cell.alive;
+}
 
-    return false;
+fn active_neighbour_count(board:&Board,neighbours:&Vec<Location>)->i32{
+    let mut active_neighbours = 0;
+    neighbours.iter().for_each(|location|{
+        if board.board[location.0 as usize][location.1 as usize].alive {
+            active_neighbours +=1;
+        }
+    });
+    active_neighbours
 }
 
 fn get_bounds_checked_neighbours(board:&Board,cell:&Cell)->Vec<Location>{
@@ -37,7 +73,7 @@ fn get_bounds_checked_neighbours(board:&Board,cell:&Cell)->Vec<Location>{
 }
 
 fn is_in_bounds(bounds:&Location,loc:&Location)->bool{
-    if loc.0<bounds.0&&loc.1<bounds.1 {
+    if loc.0>=0&&loc.1>=0&&loc.0<bounds.0&&loc.1<bounds.1 {
         return true
     }
     false
@@ -50,7 +86,11 @@ fn calc_offset(board:&Board,loc:&Location)->i16{
 fn draw_board(board:&Board){
     for row in &board.board{
         for col in row{
-            print!("{} ",col.alive);
+            let mut st="O";
+            if col.alive {
+                st = "X";
+            }
+            print!("{} ",st);
         }
         println!()
     }
