@@ -1,6 +1,6 @@
 mod board;
 mod location;
-use std::borrow::Borrow;
+use std::borrow::{Borrow, BorrowMut};
 use std::fmt::{Display, Formatter, Write};
 use std::fs::copy;
 use location::Location;
@@ -12,14 +12,19 @@ fn main() {
     println!("{}",&cell.location);
     let mut board = Board{board:Vec::new(),dimensions:Location(5,5)};
     board.init_board();
-    board.board[0][0].alive = true;
-    board.board[0][1].alive = true;
+    board.board[2][2].alive = true;
+    board.board[1][2].alive = true;
+    board.board[3][2].alive = true;
     draw_board(&board);
+    println!();
     let iter = 5;
     for i in 0..=iter{
-        board.board.iter().for_each(move|row|{row.iter().for_each(move|col:&mut Cell|{
-            col.alive = next_cell_state(&board,&col);
-        })});
+        let cloned_board = board.clone();
+        for row in board.board.iter_mut() {
+            for col in row.iter_mut(){
+                col.alive = next_cell_state(&cloned_board, &col);
+            }
+        }
         draw_board(&board);
         println!()
     }
