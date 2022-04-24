@@ -3,9 +3,11 @@ mod location;
 use std::borrow::{Borrow, BorrowMut};
 use std::fmt::{Display, Formatter, Write};
 use std::fs::copy;
+use std::thread::sleep;
+use std::time;
 use location::Location;
 use board::{Board,Cell};
-
+use clearscreen;
 fn main() {
     println!("Hello, world!");
     let mut cell:Cell = Cell {alive:true,location: Location(3, 4) };
@@ -18,7 +20,7 @@ fn main() {
     draw_board(&board);
     println!();
     let iter = 5;
-    for i in 0..=iter{
+    loop{
         let cloned_board = board.clone();
         for row in board.board.iter_mut() {
             for col in row.iter_mut(){
@@ -89,6 +91,8 @@ fn calc_offset(board:&Board,loc:&Location)->i16{
 }
 
 fn draw_board(board:&Board){
+    sleep(time::Duration::from_secs(1));
+    clearscreen::clear().expect("Error in clear");
     for row in &board.board{
         for col in row{
             let mut st="O";
@@ -99,4 +103,5 @@ fn draw_board(board:&Board){
         }
         println!()
     }
+
 }
